@@ -1,0 +1,96 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<div class="card shadow-sm border-0">
+
+    <div class="card-header bg-white">
+        <h4 class="mb-0">Add Employee</h4>
+    </div>
+
+    <div class="card-body">
+
+        <form method="POST" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <div class="row">
+
+                <!-- <div class="col-md-6 mb-3">
+                    <label class="form-label">Employee ID</label>
+                    {{ form.employee_id }}
+                    {{ form.employee_id.errors }}
+                </div> -->
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Full Name</label>
+                    {{ form.full_name }}
+                    {{ form.full_name.errors }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email</label>
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Phone</label>
+                    {{ form.phone }}
+                    {{ form.phone.errors }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Department</label>
+                    {{ form.department }}
+                    {{ form.department.errors }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Designation</label>
+                    {{ form.designation }}
+                    {{ form.designation.errors }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Salary</label>
+                    {{ form.salary }}
+                    {{ form.salary.errors }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Joining Date</label>
+                    {{ form.joining_date }}
+                    {{ form.joining_date.errors }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        Profile Photo
+                    </label>
+                    {{ form.profile_photo }}
+                    {{ form.profile_photo.errors }}
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label">
+                            Active Employee
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <button class="btn btn-primary">
+                Save Employee
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

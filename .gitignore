@@ -1,0 +1,19 @@
+# Virtual Environment
+venv/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+
+# Environment Variables
+.env
+
+# Media Files (optional)
+media/
+
+# Database (optional for learning, usually ignored in production)
+db.sqlite3
+
+# IDE
+.vscode/
+.idea/

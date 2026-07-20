@@ -1,0 +1,297 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<div class="row g-4">
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Total Employees
+                </h6>
+
+                <h2 class="fw-bold">
+                    {{ total_employees }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Active Employees
+                </h6>
+
+                <h2 class="text-success fw-bold">
+                    {{ active_employees }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Inactive Employees
+                </h6>
+
+                <h2 class="text-danger fw-bold">
+                    {{ inactive_employees }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Departments
+                </h6>
+
+                <h2 class="text-primary fw-bold">
+                    {{ total_departments }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card shadow-sm border-0 mt-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+            Department Statistics
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <table class="table table-bordered">
+
+            <thead>
+
+                <tr>
+
+                    <th>Department</th>
+
+                    <th>Total Employees</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for department in department_statistics %}
+
+                <tr>
+
+                    <td>{{ department.department }}</td>
+
+                    <td>{{ department.total }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<div class="card shadow-sm border-0 mt-4">
+
+    <div class="card-header bg-white">
+
+        <h5 class="mb-0">
+            Department Statistics
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <canvas id="departmentChart"></canvas>
+
+    </div>
+
+</div>
+<div class="row mt-4 g-4">
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Total Salary
+                </h6>
+
+                <h3 class="fw-bold text-success">
+                    ₹ {{ total_salary.total_salary|floatformat:0 }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Average Salary
+                </h6>
+
+                <h3 class="fw-bold text-primary">
+                    ₹ {{ average_salary.average_salary|floatformat:0 }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Highest Salary
+                </h6>
+
+                <h3 class="fw-bold text-warning">
+                    ₹ {{ highest_salary.highest_salary|floatformat:0 }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Lowest Salary
+                </h6>
+
+                <h3 class="fw-bold text-danger">
+                    ₹ {{ lowest_salary.lowest_salary|floatformat:0 }}
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{{ labels|json_script:"department-labels" }}
+{{ data|json_script:"department-data" }}
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+
+    const labels = JSON.parse(
+        document.getElementById("department-labels").textContent
+    );
+
+    const data = JSON.parse(
+        document.getElementById("department-data").textContent
+    );
+
+    const ctx = document.getElementById("departmentChart");
+
+    new Chart(ctx, {
+
+        type: "bar",
+
+        data: {
+
+            labels: labels,
+
+            datasets: [{
+
+                label: "Employees",
+
+                data: data,
+
+                borderWidth: 1
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true
+
+                }
+
+            }
+
+        }
+
+    });
+
+</script>
+
+{% endblock %}

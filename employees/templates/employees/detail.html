@@ -1,0 +1,87 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<div class="card shadow-sm">
+
+    <div class="card-header">
+
+        <h4>
+
+            Employee Details
+
+        </h4>
+
+    </div>
+
+    <div class="card-body">
+
+        <table class="table">
+
+            <tr>
+
+                <th>Employee ID</th>
+
+                <td>{{ employee.employee_id }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Full Name</th>
+
+                <td>{{ employee.full_name }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Email</th>
+
+                <td>{{ employee.email }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Phone</th>
+
+                <td>{{ employee.phone }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Department</th>
+
+                <td>{{ employee.department }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Designation</th>
+
+                <td>{{ employee.designation }}</td>
+
+            </tr>
+
+            <tr>
+
+                <th>Salary</th>
+
+                <td>
+
+                    ₹ {{ employee.salary }}
+
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
