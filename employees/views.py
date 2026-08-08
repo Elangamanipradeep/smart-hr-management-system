@@ -1,10 +1,11 @@
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Q
-from .models import Employee
-from .forms import EmployeeForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .forms import EmployeeForm
+from .models import Employee
 
 
 @login_required
@@ -27,7 +28,6 @@ def employee_list(request):
         )
 
     if department:
-
         employees = employees.filter(department=department)
 
     if status:
@@ -36,38 +36,30 @@ def employee_list(request):
             employees = employees.filter(is_active=True)
 
         elif status == "inactive":
-
             employees = employees.filter(is_active=False)
 
     if sort:
 
         if sort == "newest":
-
             employees = employees.order_by("-created_at")
 
         elif sort == "oldest":
-
             employees = employees.order_by("created_at")
 
         elif sort == "name_asc":
-
             employees = employees.order_by("full_name")
 
         elif sort == "name_desc":
-
             employees = employees.order_by("-full_name")
 
         elif sort == "salary_desc":
-
             employees = employees.order_by("-salary")
 
         elif sort == "salary_asc":
-
             employees = employees.order_by("salary")
 
     paginator = Paginator(employees, 10)
     page_number = request.GET.get("page")
-
     employees = paginator.get_page(page_number)
 
     query_params = request.GET.copy()
@@ -109,7 +101,10 @@ def employee_create(request):
 
             employee.save()
 
-            messages.success(request, "Employee added successfully.")
+            messages.success(
+                request,
+                "Employee added successfully.",
+            )
 
             return redirect("employees:employee_list")
 
@@ -117,9 +112,13 @@ def employee_create(request):
 
         form = EmployeeForm()
 
-    context = {"form": form}
-
-    return render(request, "employees/create.html", context)
+    return render(
+        request,
+        "employees/create.html",
+        {
+            "form": form,
+        },
+    )
 
 
 @login_required
@@ -127,9 +126,13 @@ def employee_detail(request, id):
 
     employee = get_object_or_404(Employee, id=id)
 
-    context = {"employee": employee}
-
-    return render(request, "employees/detail.html", context)
+    return render(
+        request,
+        "employees/detail.html",
+        {
+            "employee": employee,
+        },
+    )
 
 
 @login_required
@@ -149,7 +152,15 @@ def employee_update(request, id):
 
             form.save()
 
-            messages.success(request, "Employee updated Successfully.")
+            messages.success(
+                request,
+                "Employee updated successfully.",
+            )
+
+            return redirect(
+                "employees:employee_detail",
+                id=employee.id,
+            )
 
     else:
 
@@ -165,6 +176,7 @@ def employee_update(request, id):
 
 
 @login_required
+@permission_required("employees.delete_employee", raise_exception=True)
 def employee_delete(request, id):
 
     employee = get_object_or_404(Employee, id=id)
@@ -173,10 +185,17 @@ def employee_delete(request, id):
 
         employee.delete()
 
-        messages.success(request, "Employee deleted successfully.")
+        messages.success(
+            request,
+            "Employee deleted successfully.",
+        )
 
         return redirect("employees:employee_list")
 
-    else:
-
-        return render(request, "employees/delete.html", {"employee": employee})
+    return render(
+        request,
+        "employees/delete.html",
+        {
+            "employee": employee,
+        },
+    )
