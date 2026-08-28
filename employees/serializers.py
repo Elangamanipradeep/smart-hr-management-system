@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from datetime import date
-from departments.serializers import DepartmentSerializer
 from .models import Employee
 
 
@@ -51,8 +50,15 @@ class EmployeeSerializer(serializers.ModelSerializer):
     
     def validate(self, attrs):
 
-        department = attrs.get("department")
-        designation = attrs.get("designation")
+        department = attrs.get(
+            "department",
+            getattr(self.instance, "department", None)
+        )
+
+        designation = attrs.get(
+            "designation",
+            getattr(self.instance, "designation", None)
+        )
 
         if (
             department
@@ -60,6 +66,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             and department.name == "HR"
             and designation == "Backend Developer"
         ):
+
             raise serializers.ValidationError(
                 "Backend Developers cannot belong to the HR department."
             )

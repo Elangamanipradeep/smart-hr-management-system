@@ -5,48 +5,115 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import ValidationError
+from django.contrib.auth.models import User
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
+from .permissions import IsAdmin
 
 
 from .serializers import (
-    RegisterSerializer,
     UserProfileSerializer,
     ChangePasswordSerializer,
     LogoutSerializer,
+    HRUserSerializer,
 )
 
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def register_api(request):
+class HRUserListCreateAPIView(ListCreateAPIView):
+
+    permission_classes = [
+        IsAuthenticated,
+        IsAdmin,
+    ]
+
+    serializer_class = HRUserSerializer
+
+    queryset = (
+        User.objects
+        .filter(groups__name="HR")
+        .order_by("-id")
+        .distinct()
+    )
     
-    serializer = RegisterSerializer(data=request.data)
-    
-    if serializer.is_valid():
-        
-        serializer.save()
-        
+class HRUserRetrieveUpdateDestroyAPIView(
+    RetrieveUpdateDestroyAPIView
+):
+
+    permission_classes = [
+        IsAuthenticated,
+        IsAdmin,
+    ]
+
+    serializer_class = HRUserSerializer
+
+    queryset = (
+        User.objects
+        .filter(groups__name="HR")
+        .distinct()
+    )
+
+    def partial_update(self, request, *args, **kwargs):
+
+        kwargs["partial"] = True
+
+        return self.update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+
+        user = self.get_object()
+
+        user.is_active = not user.is_active
+
+        user.save()
+
+        if user.is_active:
+
+            message = "HR account activated successfully."
+
+        else:
+
+            message = "HR account deactivated successfully."
+
         return Response(
             {
-                "message": "User registered successfully.",
-                "data": serializer.data,
+                "message": message,
             },
-            status=status.HTTP_201_CREATED,
+            status=status.HTTP_200_OK,
         )
-        
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-@api_view(["GET"])
+@api_view(["GET", "PUT"])
 @permission_classes([IsAuthenticated])
 def profile_api(request):
-    
-    serializer = UserProfileSerializer(request.user)
-    
-    return Response(serializer.data)
 
+    if request.method == "GET":
+
+        serializer = UserProfileSerializer(request.user)
+
+        return Response(serializer.data)
+
+    serializer = UserProfileSerializer(
+        request.user,
+        data=request.data
+    )
+
+    if serializer.is_valid():
+
+        serializer.save()
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+    return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST,
+    )
 
 class ChangePasswordAPIView(APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdmin,]
 
     def post(self, request):
 

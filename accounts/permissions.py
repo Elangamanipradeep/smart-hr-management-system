@@ -1,11 +1,19 @@
 from rest_framework.permissions import BasePermission
 
 
-class IsHR(BasePermission):
+class IsAdminOrHR(BasePermission):
 
     def has_permission(self, request, view):
 
-        return request.user.is_staff
-    
-    
-    
+        return request.user.groups.filter(
+            name__in=["Admin", "HR"]
+        ).exists()
+
+
+class IsAdmin(BasePermission):
+
+    def has_permission(self, request, view):
+
+        return request.user.groups.filter(
+            name="Admin"
+        ).exists()

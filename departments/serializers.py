@@ -12,8 +12,16 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
         fields = [
             "id",
+            "department_code",
             "name",
             "description",
+            "employee_count",
+            "created_at",
+            "updated_at",
+        ]
+        
+        read_only_fields = [
+            "department_code",
             "employee_count",
             "created_at",
             "updated_at",

@@ -13,12 +13,15 @@ from .serializers import EmployeeSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
-from accounts.permissions import IsHR
+from accounts.permissions import (
+    IsAdmin,
+    IsAdminOrHR,
+)
 
 
 class EmployeeListCreateAPIView(ListCreateAPIView):
 
-    permission_classes = [IsAuthenticated, IsHR]
+    permission_classes = [IsAuthenticated, IsAdminOrHR]
 
     queryset = Employee.objects.filter(is_deleted=False)
 
@@ -58,7 +61,7 @@ class EmployeeListCreateAPIView(ListCreateAPIView):
 
 class EmployeeRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminOrHR]
 
     queryset = Employee.objects.filter(is_deleted=False)
 
@@ -69,14 +72,16 @@ class EmployeeRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         FormParser,
     ]
 
-    def partial_update(self, request, *args, **kwargs):
-        """
-        PATCH
-        """
-        kwargs["partial"] = True
-        return self.update(request, *args, **kwargs)
-
     def destroy(self, request, *args, **kwargs):
+
+        if not request.user.groups.filter(name="Admin").exists():
+
+            return Response(
+                {
+                    "error": "Only Admin can delete employees."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         employee = self.get_object()
 
@@ -85,6 +90,8 @@ class EmployeeRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         employee.save()
 
         return Response(
-            {"message": "Employee deleted successfully."},
+            {
+                "message": "Employee deleted successfully."
+            },
             status=status.HTTP_200_OK,
         )
