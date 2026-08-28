@@ -10,6 +10,7 @@ __pycache__/
 
 # Media Files (optional)
 media/
+staticfiles/
 
 # Database (optional for learning, usually ignored in production)
 db.sqlite3
