@@ -29,13 +29,16 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get(
-        "ALLOWED_HOSTS",
-        "localhost,127.0.0.1"
-    ).split(",")
-    if host.strip()
+    "localhost",
+    "127.0.0.1",
 ]
+
+if os.environ.get("RENDER_EXTERNAL_HOSTNAME"):
+    ALLOWED_HOSTS.append(os.environ["RENDER_EXTERNAL_HOSTNAME"])
+    
+CSRF_TRUSTED_ORIGINS = [
+    "https://" + os.environ["RENDER_EXTERNAL_HOSTNAME"]
+] if os.environ.get("RENDER_EXTERNAL_HOSTNAME") else []
 
 
 # Application definition
