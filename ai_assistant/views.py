@@ -17,6 +17,8 @@ class AIAskAPIView(APIView):
 
         question = request.data.get("question", "").strip()
 
+        history = request.data.get("history", [])
+
         if not question:
 
             return Response(
@@ -26,9 +28,50 @@ class AIAskAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        if not isinstance(history, list):
+
+            return Response(
+                {
+                    "error": "History must be a list."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Keep only valid message objects
+        cleaned_history = []
+
+        for message in history[-10:]:
+
+            if not isinstance(message, dict):
+                continue
+
+            role = message.get("role")
+            content = message.get("content")
+
+            if role not in ["user", "assistant"]:
+                continue
+
+            if not isinstance(content, str):
+                continue
+
+            content = content.strip()
+
+            if not content:
+                continue
+
+            cleaned_history.append(
+                {
+                    "role": role,
+                    "content": content,
+                }
+            )
+
         try:
 
-            answer = ask_gemini(question)
+            answer = ask_gemini(
+                question,
+                cleaned_history,
+            )
 
             return Response(
                 {
@@ -47,26 +90,21 @@ class AIAskAPIView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        # except Exception as error:
-
-        #     return Response(
-        #         {
-        #             "error": "Unable to process your question."
-        #         },
-        #         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        #     )
-            
         except Exception as error:
 
-            print("AI HR INSIGHTS ERROR:", repr(error))
+            print(
+                "AI ASSISTANT ERROR:",
+                repr(error)
+            )
 
             return Response(
                 {
-                    "error": str(error),
+                    "error": "Unable to process your question."
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
+                
+        
 class AIHRInsightsAPIView(APIView):
 
     permission_classes = [IsAuthenticated]

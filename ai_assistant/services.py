@@ -64,9 +64,9 @@ Description: {department.description or "No description"}
     return "\n".join(context)
 
 
-def ask_gemini(question):
+def ask_gemini(question, history=None):
     """
-    Send an HR-related question and database context
+    Send an HR-related question and optional conversation history
     to Gemini.
     """
 
@@ -83,29 +83,71 @@ def ask_gemini(question):
 
     hr_context = get_hr_context()
 
+    if history is None:
+        history = []
+
+    # Keep only the most recent 10 messages
+    history = history[-10:]
+
+    conversation_context = ""
+
+    for message in history:
+
+        role = message.get("role")
+        content = message.get("content", "").strip()
+
+        if not content:
+            continue
+
+        if role == "user":
+
+            conversation_context += (
+                f"USER: {content}\n"
+            )
+
+        elif role == "assistant":
+
+            conversation_context += (
+                f"AI ASSISTANT: {content}\n"
+            )
+
     prompt = f"""
-You are an AI assistant for a Human Resources Management System.
+        You are an AI assistant for a Human Resources Management System.
 
-Your job is to answer questions using ONLY the HR data
-provided below.
+        Your job is to answer questions using ONLY the HR data
+        provided below.
 
-HR DATA:
-{hr_context}
+        HR DATA:
+        {hr_context}
 
-USER QUESTION:
-{question}
+        PREVIOUS CONVERSATION:
+        {conversation_context or "No previous conversation."}
 
-INSTRUCTIONS:
+        CURRENT USER QUESTION:
+        {question}
 
-1. Answer based only on the provided HR data.
-2. Do not invent employees, departments, salaries, or other information.
-3. If the requested information is not available, clearly say so.
-4. Keep the answer concise and professional.
-5. When listing employees, include their employee ID and name.
-6. Format lists clearly when appropriate.
-7. Do not expose private information such as phone numbers or email
-   addresses unless the user specifically asks for it.
-"""
+        INSTRUCTIONS:
+
+        1. Answer based only on the provided HR data and the
+        previous conversation.
+        2. Use the previous conversation to understand references
+        such as "they", "them", "that employee", "that department",
+        and similar follow-up questions.
+        3. Do not invent employees, departments, salaries, or other
+        HR information.
+        4. If the requested information is not available, clearly
+        say so.
+        5. Keep the answer concise and professional.
+        6. When listing employees, include their employee ID and name.
+        7. Format lists clearly when appropriate.
+        8. Do not expose private information such as phone numbers
+        or email addresses unless specifically required and
+        permitted.
+        9. Treat the CURRENT USER QUESTION as the question that
+        needs to be answered now.
+        10. Do not assume information from the conversation is true
+            if it conflicts with the latest HR DATA.
+        """
 
     interaction = client.interactions.create(
         model="gemini-3.6-flash",
@@ -113,7 +155,6 @@ INSTRUCTIONS:
     )
 
     return interaction.output_text
-
 
 def generate_employee_insights(employee):
     """
