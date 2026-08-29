@@ -92,10 +92,10 @@ class AIAskAPIView(APIView):
 
         except Exception as error:
 
-            print(
-                "AI ASSISTANT ERROR:",
-                repr(error)
-            )
+            # print(
+            #     "AI ASSISTANT ERROR:",
+            #     repr(error)
+            # )
 
             return Response(
                 {
@@ -133,7 +133,7 @@ class AIHRInsightsAPIView(APIView):
 
         except Exception as error:
         
-            print("AI HR INSIGHTS ERROR:", repr(error))
+            # print("AI HR INSIGHTS ERROR:", repr(error))
 
             return Response(
                 {
